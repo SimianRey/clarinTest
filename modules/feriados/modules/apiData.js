@@ -32,10 +32,12 @@ const getByYear = async (config, year) => {
 		feriadosDB.find(config, 'anio', parseInt(year) )
 		.then( docs =>{
 			if (!docs || docs.length == 0){
+				console.log('from API', year);				
 				importFullYear(config, year)
 				.then( resolve )
 				.catch( reject)
 			} else {
+				console.log('from db');
 				resolve( parseFeriados(docs) )
 			}
 		})
@@ -77,10 +79,8 @@ const importFullYear =  (config, year)  =>{
 			data.forEach( f => f.anio =  parseInt(year)) //Add year for future use
 			return feriadosDB.setBatch(config, data)
 		})
-		.then( () => feriadosDB.find(config, 'anio', year))
-		.then( docs =>  {
-			resolve( parseFeriados(docs) )
-		})
+		.then( (result) => resolve( parseFeriados(result.ops) ) )
+		.reject( reject )
 	});
 	
 }
