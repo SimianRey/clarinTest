@@ -1,6 +1,6 @@
 const config = { //This params may come from config file, or environment
   main: {
-      port: 3000,
+      port: 33111,
   },
   db : {
       dbName: 'CLARIN_TEST',

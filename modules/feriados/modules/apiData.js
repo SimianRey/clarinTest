@@ -19,19 +19,34 @@ const inicialLoad = async (config) => {
 	let docs = await feriadosDB.getAll(config)
 	if (docs && docs.length != 0) return; //At least some data already exist, continue loading
 	let year = new Date().getFullYear();
-	let feriados = await getFeriadosFromAPI( year ) 
-	feriados.forEach( f => f.anio =  year) //Add year for future use
-	await feriadosDB.setBatch(config, feriados) 
+	await importFullYear(config, year)
 }
 
 const getAll = (config) => {
 	return feriadosDB.getAll(config)
 }
 
+const getByYear = async (config, year) => {
+	return new Promise ( (resolve, reject) => { 
+		if (!year) { throw `Invalid Param year` }
+		feriadosDB.find(config, 'anio', parseInt(year) )
+		.then( docs =>{
+			if (!docs || docs.length == 0){
+				importFullYear(config, year)
+				.then( resolve )
+				.catch( reject)
+			} else {
+				resolve( parseFeriados(docs) )
+			}
+		})
+		.catch(reject)
+	});
+}
+
 const find = (config, id) => {
 	return new Promise ( (resolve, reject) => { 
 		if (!id) { throw `Invalid Param id` }
-		return feriadosDB.find(config, id)
+		return feriadosDB.findById(config, id)
 		.then( resolve )
 		.catch(reject)		
 	});	
@@ -54,7 +69,34 @@ const update = (config, body) => {
 	});	
 }
 
+
+const importFullYear =  (config, year)  =>{
+	return new Promise ( (resolve, reject) => { 
+		getFeriadosFromAPI(year)
+		.then( data =>{
+			data.forEach( f => f.anio =  parseInt(year)) //Add year for future use
+			return feriadosDB.setBatch(config, data)
+		})
+		.then( () => feriadosDB.find(config, 'anio', year))
+		.then( docs =>  {
+			resolve( parseFeriados(docs) )
+		})
+	});
+	
+}
+
 module.exports = {
 	getFeriadosFromAPI, checkDBConn, inicialLoad,
+	getByYear,
 	getAll, find, update
+}
+
+
+//Aux
+const parseFeriados = docs =>{
+	let feriados = { 1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 
+					7:[], 8:[], 9:[], 10:[], 11:[], 12:[] }
+	
+	docs.forEach( i => feriados[i.mes].push(i) )
+	return feriados
 }

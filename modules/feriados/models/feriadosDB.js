@@ -62,7 +62,7 @@ const setBatch = (config, docs) => {
     });
 }
 
-const find = (config, id) => {
+const findById = (config, id) => {
     return new Promise ( (resolve, reject) => { 
         let dbClient;
         connect(config)
@@ -70,6 +70,21 @@ const find = (config, id) => {
             dbClient = client
             let db = client.db(config.dbName);
             return db.collection('feriados').find({_id:  new mongo.ObjectID(id) }).toArray() 
+        })
+        .then (resolve)
+        .catch(reject)
+        .finally ( ()=>dbClient.close())
+    });
+}
+
+const find = (config, key, value) => {
+    return new Promise ( (resolve, reject) => { 
+        let dbClient;
+        connect(config)
+        .then( client => {
+            dbClient = client
+            let db = client.db(config.dbName);
+            return db.collection('feriados').find( {[key] : value} ).toArray() 
         })
         .then (resolve)
         .catch(reject)
@@ -96,4 +111,5 @@ const update = (config, event) => {
 }
 
 module.exports = {connect, checkConn, setBatch,
-                    getAll, find, update }
+                    getAll, find, update,
+                    findById }
