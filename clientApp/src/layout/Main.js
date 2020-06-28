@@ -4,20 +4,25 @@ import Calendar from '../components/Calendar'
 import axios from 'axios'
 import {Row, Container} from 'react-bootstrap'
 import EventDetails from './EventDetails'
-
+import Spinner from '../components/Spinner'
 
 const Main = () =>{
     const [year, setYear] = useState(2020)
     const [holidays, setHolidays] = useState([])
     const [holiday, setHoliday] = useState(null)
+    const [loading, setLoading] = useState(false)
 
     useEffect (()=>{
+        setLoading(true)
         let host = 'http://'+window.location.href.split('//')[1].split('/')[0] +'/'; 
         if ( process.env.NODE_ENV == 'development') {host = '/' } //On Develop Only
         
         
         axios( `${host}feriados/anio/${year}`)
-        .then(result => setHolidays(result.data.body.payload) )
+        .then(result => {
+            setHolidays(result.data.body.payload) 
+            setLoading(false)
+        })
         .catch( err => console.log('Req Error', err ) )
     },[year])
 
@@ -40,25 +45,27 @@ const Main = () =>{
 
     return (
         <>
-        <SelectYear year={year} onChange={setYear}/> 
-        <Container>
-            <Row className="justify-content-md-center">
-            {
-                Object.keys(holidays).map(m => {
-                    return (
-                        <Calendar  key={'key'+m}
-                            month={m} year={year} events={holidays[m]}
-                            onClick={showDetails}
-                            />
-                    )
-                } )
-            }
-            </Row>
-            {
-                <EventDetails holiday={holiday} onSave={saveDetails} handleClose={hideDetails}
-                    filter={['_id', 'dia', 'mes', 'anio']} />
-            }
-        </Container>
+            <Spinner loading={loading}/>
+            <SelectYear year={year} onChange={setYear}/> 
+
+            <Container>
+                <Row className="justify-content-md-center">
+                {
+                    Object.keys(holidays).map(m => {
+                        return (
+                            <Calendar  key={'key'+m}
+                                month={m} year={year} events={holidays[m]}
+                                onClick={showDetails}
+                                />
+                        )
+                    } )
+                }
+                </Row>
+                {
+                    <EventDetails holiday={holiday} onSave={saveDetails} handleClose={hideDetails}
+                        filter={['_id', 'dia', 'mes', 'anio']} />
+                }
+            </Container>
         </>
     )
 }

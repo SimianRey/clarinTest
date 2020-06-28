@@ -1,9 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import {Modal, Button} from 'react-bootstrap'
 import FieldData from '../components/FieldData'
+//import Spinner from '../components/Spinner'
+
+//<Spinner loading={loading}/>
 
 const EventDetails = props =>{
     const [item, setItem] = useState( null )
+    //const [loading, setLoading] = useState(false)
     
     useEffect( ()=>{
         setItem(props.holiday)
