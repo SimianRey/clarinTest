@@ -5,14 +5,14 @@ import Spinner from '../components/Spinner'
 import axios from 'axios'
 
 const EventDetails = props =>{
-    const [item, setItem] = useState( props.holiday )
+    const [item, setItem] = useState()
     const [isSending, setIsSending] = useState( false )    
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
    
     useEffect( ()=>{
-        setItem(props.holiday)
+       setItem ( Object.assign({}, props.holiday) )
     },[props.holiday])
 
     const handleChange = (name, value) => {
@@ -54,10 +54,10 @@ const EventDetails = props =>{
         <Modal show={props.holiday != null} onHide={props.handleClose} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {   !props.holiday._id ? 
+                    {   !item._id ? 
                         'Fecha Sin Feriado'
                     :
-                        `${props.holiday.anio}/${props.holiday.mes}/${props.holiday.dia}`
+                        `${item.anio}/${item.mes}/${item.dia}`
                     }
                 </Modal.Title>
             </Modal.Header>

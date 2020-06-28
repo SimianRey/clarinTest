@@ -12,6 +12,7 @@ const Main = () =>{
     const [holiday, setHoliday] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [refresh, forceRefresh] = useState(false)
     
     
     useEffect (()=>{ //Load holidays Year
@@ -35,11 +36,15 @@ const Main = () =>{
             console.log('Get Data Failed. Error: ', err ) 
             setLoading(false)
         })
-    },[year])
+    },[year, refresh])
 
     const showDetails  = (item) =>{
         // if (!item) return;  //Remove to Ignore 'Fecha Sin Feriado' Modal
-        setHoliday(item || {})
+        setHoliday( item || {} )
+    }
+    const saveSuccess = () =>{
+        setHoliday(null)
+        forceRefresh(!refresh) //Refresh
     }
     
     return (
@@ -61,7 +66,7 @@ const Main = () =>{
                 }
                 </Row>
                 {
-                    <EventDetails holiday={holiday} onSave={()=>setHoliday(null)} handleClose={()=>setHoliday(null)}
+                    <EventDetails holiday={holiday} onSave={saveSuccess} handleClose={()=>setHoliday(null)}
                         filter={['_id', 'dia', 'mes', 'anio']} />
                 }
             </Container>
