@@ -71,9 +71,8 @@ async function startApp (){
     initServer()  
   } catch (error) {
     console.log(`Program Initialize Failed. Error: ${error}`);
-  process.exit(1);
-  }
-  
+    process.exit(1);
+  }  
 }
 
 module.exports = app;

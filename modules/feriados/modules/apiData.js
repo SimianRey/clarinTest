@@ -19,7 +19,7 @@ const inicialLoad = async (config) => {
 	let docs = await feriadosDB.getAll(config)
 	if (docs && docs.length != 0) return; //At least some data already exist, continue loading
 	let year = new Date().getFullYear();
-	await importFullYear(config, year)
+	await importFullYear(config, year)	
 }
 
 const getAll = (config) => {
@@ -28,7 +28,7 @@ const getAll = (config) => {
 
 const getByYear = async (config, year) => {
 	return new Promise ( (resolve, reject) => { 
-		if (!year) { throw `Invalid Param year` }
+		if (!year) { reject (`Invalid Param year`); return }
 		feriadosDB.find(config, 'anio', parseInt(year) )
 		.then( docs =>{
 			if (!docs || docs.length == 0){

@@ -6,16 +6,16 @@ import {Row, Container, Alert} from 'react-bootstrap'
 import EventDetails from './EventDetails'
 import Spinner from '../components/Spinner'
 
+let refresh = false;
+
 const Main = () =>{
     const [year, setYear] = useState(2020)    
     const [holidays, setHolidays] = useState([])
     const [holiday, setHoliday] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [refresh, forceRefresh] = useState(false)
     
-    
-    useEffect (()=>{ //Load holidays Year
+    useEffect (()=>{ 
         setLoading(true)
         setError(null)
         let host = 'http://'+window.location.href.split('//')[1].split('/')[0] +'/'; 
@@ -29,22 +29,27 @@ const Main = () =>{
                 setError('Ups.... Nos se pudieron cargar los feriados, intente mas tarde !!!')
                 console.log(`Get Data Failed. Error: ${result.data.body.err}`);
             }
-            setLoading(false)            
+            setLoading(false)
+
         })
         .catch( err => {
             setError('Ups.... Nos se pudieron cargar los feriados, intente mas tarde !!!')
             console.log('Get Data Failed. Error: ', err ) 
             setLoading(false)
         })
-    },[year, refresh])
+        return () => {
+            setHolidays( [] )
+           }
+    },[year, refresh ])
 
     const showDetails  = (item) =>{
         // if (!item) return;  //Remove to Ignore 'Fecha Sin Feriado' Modal
         setHoliday( item || {} )
     }
+
     const saveSuccess = () =>{
+        refresh = refresh ? false : true //To Force Refresh
         setHoliday(null)
-        forceRefresh(!refresh) //Refresh
     }
     
     return (
