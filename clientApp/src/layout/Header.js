@@ -2,9 +2,9 @@ import React from 'react'
 
 const Header = () =>{
     return (
-        <header>
-            <h1>Header</h1>
-        </header>
+        <div className="header">
+            <h2> Clarin Test </h2>
+        </div>
     )
 }
 

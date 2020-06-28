@@ -12,7 +12,7 @@ const Calendar = props =>{
     }
 
     return (
-        <Col lg={4} md={6} xs={1}>
+        <Col lg={4} md={6} xs={12}>
             <CalendarLayout
             value={dateToday}
             showNavigation={false}

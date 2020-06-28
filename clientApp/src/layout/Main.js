@@ -2,52 +2,51 @@ import React, {useState, useEffect} from 'react'
 import SelectYear from '../components/SelectYear'
 import Calendar from '../components/Calendar'
 import axios from 'axios'
-import {Row, Container} from 'react-bootstrap'
+import {Row, Container, Alert} from 'react-bootstrap'
 import EventDetails from './EventDetails'
 import Spinner from '../components/Spinner'
 
 const Main = () =>{
-    const [year, setYear] = useState(2020)
+    const [year, setYear] = useState(2020)    
     const [holidays, setHolidays] = useState([])
     const [holiday, setHoliday] = useState(null)
     const [loading, setLoading] = useState(false)
-
-    useEffect (()=>{
+    const [error, setError] = useState(null)
+    
+    
+    useEffect (()=>{ //Load holidays Year
         setLoading(true)
+        setError(null)
         let host = 'http://'+window.location.href.split('//')[1].split('/')[0] +'/'; 
-        if ( process.env.NODE_ENV == 'development') {host = '/' } //On Develop Only
-        
+        if ( process.env.NODE_ENV == 'development') {host = '/' } //On Develop Only       
         
         axios( `${host}feriados/anio/${year}`)
         .then(result => {
-            setHolidays(result.data.body.payload) 
+            if (result.data.statusCode == 200){
+                setHolidays(result.data.body.payload) 
+            } else {
+                setError('Ups.... Nos se pudieron cargar los feriados, intente mas tarde !!!')
+                console.log(`Get Data Failed. Error: ${result.data.body.err}`);
+            }
+            setLoading(false)            
+        })
+        .catch( err => {
+            setError('Ups.... Nos se pudieron cargar los feriados, intente mas tarde !!!')
+            console.log('Get Data Failed. Error: ', err ) 
             setLoading(false)
         })
-        .catch( err => console.log('Req Error', err ) )
     },[year])
 
-    useEffect( ()=> {
-    }, [holidays]) 
-
     const showDetails  = (item) =>{
+        // if (!item) return;  //Remove to Ignore 'Fecha Sin Feriado' Modal
         setHoliday(item || {})
     }
     
-    const hideDetails  = (item) =>{
-        setHoliday(null)
-    }
-    
-    const saveDetails  = (item) =>{ //TODO
-        console.log('item ', item);
-        setHoliday(null)
-    }
-
-
     return (
         <>
             <Spinner loading={loading}/>
             <SelectYear year={year} onChange={setYear}/> 
-
+            {error ?  <Alert variant='danger'> {error} </Alert> : null }
             <Container>
                 <Row className="justify-content-md-center">
                 {
@@ -62,7 +61,7 @@ const Main = () =>{
                 }
                 </Row>
                 {
-                    <EventDetails holiday={holiday} onSave={saveDetails} handleClose={hideDetails}
+                    <EventDetails holiday={holiday} onSave={()=>setHoliday(null)} handleClose={()=>setHoliday(null)}
                         filter={['_id', 'dia', 'mes', 'anio']} />
                 }
             </Container>

@@ -17,18 +17,21 @@ body{
   background:	#fdf6f2;   
 }
 
-.mainBody{
-  min-height: 750px;
-  margin-top: 110px;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
-footer { 
+.footer { 
   color :  #005b96;
   width: 100%;
   text-align: right;
 }
+
+.header {  
+  width: 100%;
+  text-align: center;
+}
+.selectYear{
+  text-align: center;
+}
+
+
 
 .errorMsg{
   background-color: #FF4D4D;
@@ -70,9 +73,11 @@ footer {
   color: #000 !important;
 }
 .customDate1 {
-  background-color: #89609e !important;
+  background-color: #52307c !important;
+  color: #FFF !important;
 }
 
 .customDate2 {
-  background-color: #33BEFF !important;
+  background-color: #1b7ced !important;
+  color: #FFF !important;
 }

@@ -1,14 +1,16 @@
-import React, {useState, useEffect} from 'react'
-import {Modal, Button} from 'react-bootstrap'
+import React, {useState, useEffect, useCallback} from 'react'
+import {Modal, Button, Alert} from 'react-bootstrap'
 import FieldData from '../components/FieldData'
-//import Spinner from '../components/Spinner'
-
-//<Spinner loading={loading}/>
+import Spinner from '../components/Spinner'
+import axios from 'axios'
 
 const EventDetails = props =>{
-    const [item, setItem] = useState( null )
-    //const [loading, setLoading] = useState(false)
-    
+    const [item, setItem] = useState( props.holiday )
+    const [isSending, setIsSending] = useState( false )    
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+
+   
     useEffect( ()=>{
         setItem(props.holiday)
     },[props.holiday])
@@ -17,10 +19,34 @@ const EventDetails = props =>{
         item[name] = value
         setItem(item)
     } 
+    
+    const handleSave = useCallback( (item) => { //Save Holiday and dissmis
+        if (isSending) return
+        setLoading(true)
+        setIsSending(true)
+        setError(null)
+        let host = 'http://'+window.location.href.split('//')[1].split('/')[0] +'/'; 
+        if ( process.env.NODE_ENV == 'development') {host = '/' } //On Develop Only
 
-    const onSave = () =>{
-        props.onSave(item)
-    }
+        axios.patch( `${host}feriados/update`, {feriado:item} )
+        .then(result => {
+            setLoading(false)
+            setIsSending(false)
+            if (result.data.statusCode == 200){
+                props.onSave(item) 
+            } else {
+                setError('Ups.... Nos se pudo actualizar, intente mas tarde !!!')
+                console.log(`Req Failed. Error: ${result.data.body.err}`);
+            }
+        })
+        .catch( err => {
+            setLoading(false)
+            setIsSending(false)
+            setError('Ups.... Nos se pudo actualizar, intente mas tarde !!!')
+            console.log(`Req Failed. Error: ${err}`);
+        })
+    }, []);
+    
 
     if (!props.holiday) return null
     
@@ -36,6 +62,8 @@ const EventDetails = props =>{
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                    {error ? <Alert variant='danger'> {error} </Alert> : null}                    
+                    <Spinner loading={loading}/>
                     {item && Object.keys(item).map( i =>{
                         if ( props.filter.find( f => f == i) ) return null
                         return <FieldData key={'field'+i} name={i} value={item[i]} handleChange={handleChange}/>
@@ -50,7 +78,7 @@ const EventDetails = props =>{
                 {!props.holiday._id ? 
                     null 
                 : 
-                    <Button variant="primary" onClick={onSave} hide={!props.holiday._id}>
+                    <Button variant="primary" onClick={()=>handleSave(item)} hide={(!props.holiday._id).toString()}>
                         SAVE
                     </Button>
                 }
